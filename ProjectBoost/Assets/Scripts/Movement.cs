@@ -5,13 +5,14 @@ using UnityEngine;
 public class Movement : MonoBehaviour
 {
     Rigidbody rb;
-    // Start is called before the first frame update
+    [SerializeField] private float thrustForce = 10f; // Control the thrust force
+    [SerializeField] private float rotationSpeed = 100f; // Control the rotation speed
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
     }
 
-    // Update is called once per frame
     void Update()
     {
         ProcessThrust();
@@ -22,19 +23,21 @@ public class Movement : MonoBehaviour
     {
         if (Input.GetKey(KeyCode.Space))
         {
-            rb.AddRelativeForce(Vector3.up);
+            rb.AddRelativeForce(Vector3.up * thrustForce); // Apply thrust force
         }
     }
 
     void ProcessRotate()
     {
+        float rotationAmount = rotationSpeed * Time.deltaTime; // Calculate the rotation amount
+
         if (Input.GetKey(KeyCode.A))
         {
-
+            rb.AddRelativeTorque(Vector3.forward * rotationAmount); // Rotate left
         }
         else if (Input.GetKey(KeyCode.D))
         {
-
+            rb.AddRelativeTorque(-Vector3.forward * rotationAmount); // Rotate right
         }
     }
 }
