@@ -1,16 +1,22 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class Movement : MonoBehaviour
 {
     Rigidbody rb;
-    [SerializeField] private float thrustForce = 10f; // Control the thrust force
-    [SerializeField] private float rotationSpeed = 100f; // Control the rotation speed
+    [SerializeField] private float thrustForce = 10f;
+    [SerializeField] private float rotationSpeed = 100f;
+
+    
+    [SerializeField] private int score = 5; 
+    [SerializeField] private TMP_Text scoreText;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        UpdateScoreText(); 
     }
 
     void Update()
@@ -23,21 +29,35 @@ public class Movement : MonoBehaviour
     {
         if (Input.GetKey(KeyCode.Space))
         {
-            rb.AddRelativeForce(Vector3.up * thrustForce); // Apply thrust force
+            rb.AddRelativeForce(Vector3.up * thrustForce);
         }
     }
 
     void ProcessRotate()
     {
-        float rotationAmount = rotationSpeed * Time.deltaTime; // Calculate the rotation amount
+        float rotationAmount = rotationSpeed * Time.deltaTime;
 
         if (Input.GetKey(KeyCode.A))
         {
-            rb.AddRelativeTorque(Vector3.forward * rotationAmount); // Rotate left
+            rb.AddRelativeTorque(Vector3.forward * rotationAmount);
         }
         else if (Input.GetKey(KeyCode.D))
         {
-            rb.AddRelativeTorque(-Vector3.forward * rotationAmount); // Rotate right
+            rb.AddRelativeTorque(-Vector3.forward * rotationAmount);
         }
+    }
+
+    void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Wall"))
+        {
+            score--;
+            UpdateScoreText(); 
+        }
+    }
+
+    void UpdateScoreText()
+    {
+        scoreText.text = "Score: " + score; 
     }
 }
