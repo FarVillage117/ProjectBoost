@@ -5,7 +5,10 @@ using TMPro;
 
 public class Movement : MonoBehaviour
 {
+    public enum RocketState { Idle, Flying, Crashed };
+    [SerializeField] RocketState state = RocketState.Idle;
     Rigidbody rb;
+
     [SerializeField] private float thrustForce = 10f;
     [SerializeField] private float rotationSpeed = 100f;
 
@@ -15,17 +18,26 @@ public class Movement : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-
-        
-        rb.freezeRotation = true;
-
         UpdateScoreText();
     }
 
     void Update()
     {
-        ProcessThrust();
-        ProcessRotate();
+        switch (state)
+        {
+            case RocketState.Idle:
+                ProcessThrust();
+                ProcessRotate();
+                break;
+
+            case RocketState.Flying:
+                ProcessThrust();
+                ProcessRotate();
+                break;
+
+            case RocketState.Crashed:
+                break;
+        }
     }
 
     void ProcessThrust()
@@ -33,31 +45,22 @@ public class Movement : MonoBehaviour
         if (Input.GetKey(KeyCode.Space))
         {
             rb.AddRelativeForce(Vector3.up * thrustForce);
+            state = RocketState.Flying;
         }
     }
 
-    
     void ProcessRotate()
     {
         float rotationAmount = rotationSpeed * Time.deltaTime;
 
         if (Input.GetKey(KeyCode.A))
         {
-            ApplyRotation(rotationAmount);
+            rb.AddRelativeTorque(Vector3.forward * rotationAmount);
         }
-        else if (Input.GetKey(KeyCode.D)) 
+        else if (Input.GetKey(KeyCode.D))
         {
-            ApplyRotation(-rotationAmount);
+            rb.AddRelativeTorque(-Vector3.forward * rotationAmount);
         }
-    }
-
-    
-    void ApplyRotation(float rotationThisFrame)
-    {
-        
-        rb.freezeRotation = true; 
-        transform.Rotate(Vector3.forward * rotationThisFrame);
-        rb.freezeRotation = false; 
     }
 
     void OnCollisionEnter(Collision collision)
@@ -66,6 +69,7 @@ public class Movement : MonoBehaviour
         {
             score--;
             UpdateScoreText();
+            state = RocketState.Crashed;
         }
     }
 
