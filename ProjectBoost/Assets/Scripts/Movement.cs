@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class Movement : MonoBehaviour
 {
@@ -26,15 +27,10 @@ public class Movement : MonoBehaviour
         switch (state)
         {
             case RocketState.Idle:
-                ProcessThrust();
-                ProcessRotate();
-                break;
-
             case RocketState.Flying:
                 ProcessThrust();
                 ProcessRotate();
                 break;
-
             case RocketState.Crashed:
                 break;
         }
@@ -63,14 +59,19 @@ public class Movement : MonoBehaviour
         }
     }
 
-    void OnCollisionEnter(Collision collision)
+    void OnCollisionEnter(Collision other)
     {
-        if (collision.gameObject.CompareTag("Wall"))
+        if (other.gameObject.CompareTag("Wall"))
         {
-            score--;
-            UpdateScoreText();
-            state = RocketState.Crashed;
+            score--; 
+            UpdateScoreText(); 
+            ReloadLevel();
         }
+    }
+
+    void ReloadLevel()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     void UpdateScoreText()
