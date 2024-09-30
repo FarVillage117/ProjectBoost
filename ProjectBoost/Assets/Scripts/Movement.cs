@@ -9,14 +9,17 @@ public class Movement : MonoBehaviour
     [SerializeField] private float thrustForce = 10f;
     [SerializeField] private float rotationSpeed = 100f;
 
-    
-    [SerializeField] private int score = 5; 
+    [SerializeField] private int score = 5;
     [SerializeField] private TMP_Text scoreText;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        UpdateScoreText(); 
+
+        
+        rb.freezeRotation = true;
+
+        UpdateScoreText();
     }
 
     void Update()
@@ -33,18 +36,28 @@ public class Movement : MonoBehaviour
         }
     }
 
+    
     void ProcessRotate()
     {
         float rotationAmount = rotationSpeed * Time.deltaTime;
 
         if (Input.GetKey(KeyCode.A))
         {
-            rb.AddRelativeTorque(Vector3.forward * rotationAmount);
+            ApplyRotation(rotationAmount);
         }
-        else if (Input.GetKey(KeyCode.D))
+        else if (Input.GetKey(KeyCode.D)) 
         {
-            rb.AddRelativeTorque(-Vector3.forward * rotationAmount);
+            ApplyRotation(-rotationAmount);
         }
+    }
+
+    
+    void ApplyRotation(float rotationThisFrame)
+    {
+        
+        rb.freezeRotation = true; 
+        transform.Rotate(Vector3.forward * rotationThisFrame);
+        rb.freezeRotation = false; 
     }
 
     void OnCollisionEnter(Collision collision)
@@ -52,12 +65,12 @@ public class Movement : MonoBehaviour
         if (collision.gameObject.CompareTag("Wall"))
         {
             score--;
-            UpdateScoreText(); 
+            UpdateScoreText();
         }
     }
 
     void UpdateScoreText()
     {
-        scoreText.text = "Score: " + score; 
+        scoreText.text = "Score: " + score;
     }
 }
