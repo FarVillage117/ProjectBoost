@@ -1,45 +1,35 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
 using UnityEngine.SceneManagement;
+using TMPro;
 
 public class Movement : MonoBehaviour
 {
-    public enum RocketState { Idle, Flying, Crashed };
-    [SerializeField] RocketState state = RocketState.Idle;
     Rigidbody rb;
-
     [SerializeField] private float thrustForce = 10f;
-    [SerializeField] private float rotationSpeed = 300f;
-
-    [SerializeField] private int initialScore = 5; 
+    [SerializeField] private float rotationSpeed = 100f;
     [SerializeField] private TMP_Text scoreText;
+    private int score;
 
     void Start()
     {
-        rb = GetComponent<Rigidbody>();
-
-        if (!PlayerPrefs.HasKey("Score"))
+        if (PlayerPrefs.HasKey("Score"))
         {
-            PlayerPrefs.SetInt("Score", initialScore);
+            score = PlayerPrefs.GetInt("Score");
         }
-
+        else
+        {
+            score = 1;
+        }
+        rb = GetComponent<Rigidbody>();
         UpdateScoreText();
     }
 
     void Update()
     {
-        switch (state)
-        {
-            case RocketState.Idle:
-            case RocketState.Flying:
-                ProcessThrust();
-                ProcessRotate();
-                break;
-            case RocketState.Crashed:
-                break;
-        }
+        ProcessThrust();
+        ProcessRotate();
     }
 
     void ProcessThrust()
@@ -47,7 +37,6 @@ public class Movement : MonoBehaviour
         if (Input.GetKey(KeyCode.Space))
         {
             rb.AddRelativeForce(Vector3.up * thrustForce);
-            state = RocketState.Flying;
         }
     }
 
@@ -65,32 +54,26 @@ public class Movement : MonoBehaviour
         }
     }
 
-    void OnCollisionEnter(Collision other)
+    void OnCollisionEnter(Collision collision)
     {
-        switch (other.gameObject.tag)
+        if (collision.gameObject.CompareTag("Wall"))
         {
-            case "Wall":
-                ReduceScore();
-                break;
-            case "LandingPad":
-                ResetScore(); 
-                LoadNextLevel();
-                break;
-            default:
-                break;
+            ReduceScoreAndRespawn();
+        }
+        else if (collision.gameObject.CompareTag("LandingPad"))
+        {
+            ResetGame();
         }
     }
 
-    void ReduceScore()
+    void ReduceScoreAndRespawn()
     {
-        int currentScore = PlayerPrefs.GetInt("Score");
-
-        if (currentScore > 1)
+        if (score > 1)
         {
-            currentScore--; 
-            PlayerPrefs.SetInt("Score", currentScore);
+            score--;
+            PlayerPrefs.SetInt("Score", score);
             UpdateScoreText();
-            ReloadLevel();
+            FindObjectOfType<FadeManager>().FadeOutAndReload();
         }
         else
         {
@@ -98,41 +81,16 @@ public class Movement : MonoBehaviour
         }
     }
 
-    void ReloadLevel()
-    {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-    }
-
-    void LoadNextLevel()
-    {
-        int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
-        int nextSceneIndex = currentSceneIndex + 1;
-
-        if (nextSceneIndex < SceneManager.sceneCountInBuildSettings)
-        {
-            SceneManager.LoadScene(nextSceneIndex);
-        }
-        else
-        {
-            SceneManager.LoadScene(0);
-        }
-    }
-
-    void ResetScore()
-    {
-        PlayerPrefs.SetInt("Score", initialScore); 
-        UpdateScoreText();
-    }
-
     void ResetGame()
     {
-        PlayerPrefs.SetInt("Score", initialScore);
-        SceneManager.LoadScene(0);
+        score = 1;
+        PlayerPrefs.SetInt("Score", score);
+        UpdateScoreText();
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     void UpdateScoreText()
     {
-        int currentScore = PlayerPrefs.GetInt("Score");
-        scoreText.text = "Score: " + currentScore;
+        scoreText.text = "Score: " + score;
     }
 }
