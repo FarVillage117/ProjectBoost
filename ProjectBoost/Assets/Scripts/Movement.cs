@@ -13,12 +13,18 @@ public class Movement : MonoBehaviour
     [SerializeField] private float thrustForce = 10f;
     [SerializeField] private float rotationSpeed = 100f;
 
-    [SerializeField] private int score = 5;
+    [SerializeField] private int initialScore = 5; 
     [SerializeField] private TMP_Text scoreText;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+
+        if (!PlayerPrefs.HasKey("Score"))
+        {
+            PlayerPrefs.SetInt("Score", initialScore);
+        }
+
         UpdateScoreText();
     }
 
@@ -61,11 +67,34 @@ public class Movement : MonoBehaviour
 
     void OnCollisionEnter(Collision other)
     {
-        if (other.gameObject.CompareTag("Wall"))
+        switch (other.gameObject.tag)
         {
-            score--; 
-            UpdateScoreText(); 
+            case "Wall":
+                ReduceScore();
+                break;
+            case "LandingPad":
+                ResetScore(); 
+                LoadNextLevel();
+                break;
+            default:
+                break;
+        }
+    }
+
+    void ReduceScore()
+    {
+        int currentScore = PlayerPrefs.GetInt("Score");
+
+        if (currentScore > 1)
+        {
+            currentScore--; 
+            PlayerPrefs.SetInt("Score", currentScore);
+            UpdateScoreText();
             ReloadLevel();
+        }
+        else
+        {
+            ResetGame();
         }
     }
 
@@ -74,8 +103,36 @@ public class Movement : MonoBehaviour
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
+    void LoadNextLevel()
+    {
+        int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
+        int nextSceneIndex = currentSceneIndex + 1;
+
+        if (nextSceneIndex < SceneManager.sceneCountInBuildSettings)
+        {
+            SceneManager.LoadScene(nextSceneIndex);
+        }
+        else
+        {
+            SceneManager.LoadScene(0);
+        }
+    }
+
+    void ResetScore()
+    {
+        PlayerPrefs.SetInt("Score", initialScore); 
+        UpdateScoreText();
+    }
+
+    void ResetGame()
+    {
+        PlayerPrefs.SetInt("Score", initialScore);
+        SceneManager.LoadScene(0);
+    }
+
     void UpdateScoreText()
     {
-        scoreText.text = "Score: " + score;
+        int currentScore = PlayerPrefs.GetInt("Score");
+        scoreText.text = "Score: " + currentScore;
     }
 }

@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Rocket
   - Wall
+  - LandingPad
   layers:
   - Default
   - TransparentFX
