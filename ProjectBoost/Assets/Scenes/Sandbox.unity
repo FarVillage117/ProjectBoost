@@ -1285,7 +1285,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   state: 0
   thrustForce: 10
-  rotationSpeed: 100
+  rotationSpeed: 200
   initialScore: 5
   scoreText: {fileID: 1328046985}
 --- !u!54 &7197719696444785060

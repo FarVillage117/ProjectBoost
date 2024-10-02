@@ -11,7 +11,7 @@ public class Movement : MonoBehaviour
     Rigidbody rb;
 
     [SerializeField] private float thrustForce = 10f;
-    [SerializeField] private float rotationSpeed = 100f;
+    [SerializeField] private float rotationSpeed = 300f;
 
     [SerializeField] private int initialScore = 5; 
     [SerializeField] private TMP_Text scoreText;
