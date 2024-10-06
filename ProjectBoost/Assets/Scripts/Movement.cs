@@ -10,6 +10,11 @@ public class Movement : MonoBehaviour
     [SerializeField] private float thrustForce = 10f;
     [SerializeField] private float rotationSpeed = 100f;
     [SerializeField] private TMP_Text scoreText;
+
+    [SerializeField] private AudioSource thrustAudio;
+    [SerializeField] private AudioSource collisionAudio;
+    [SerializeField] private AudioSource landingPadAudio;
+
     private int score;
 
     void Start()
@@ -20,7 +25,7 @@ public class Movement : MonoBehaviour
         }
         else
         {
-            score = 1;
+            score = 5;
         }
         rb = GetComponent<Rigidbody>();
         UpdateScoreText();
@@ -37,6 +42,14 @@ public class Movement : MonoBehaviour
         if (Input.GetKey(KeyCode.Space))
         {
             rb.AddRelativeForce(Vector3.up * thrustForce);
+            if (!thrustAudio.isPlaying)
+            {
+                thrustAudio.Play();
+            }
+        }
+        else
+        {
+            thrustAudio.Stop();
         }
     }
 
@@ -58,10 +71,12 @@ public class Movement : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Wall"))
         {
+            collisionAudio.Play();
             ReduceScoreAndRespawn();
         }
         else if (collision.gameObject.CompareTag("LandingPad"))
         {
+            landingPadAudio.Play();
             ResetGame();
         }
     }
@@ -83,7 +98,7 @@ public class Movement : MonoBehaviour
 
     void ResetGame()
     {
-        score = 1;
+        score = 5;
         PlayerPrefs.SetInt("Score", score);
         UpdateScoreText();
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
