@@ -29,6 +29,18 @@ public class Movement : MonoBehaviour
         }
         rb = GetComponent<Rigidbody>();
         UpdateScoreText();
+        if (thrustAudio == null)
+        {
+            Debug.LogWarning("Thrust AudioSource has not been assigned.");
+        }
+        if (collisionAudio == null)
+        {
+            Debug.LogWarning("Collision AudioSource has not been assigned.");
+        }
+        if (landingPadAudio == null)
+        {
+            Debug.LogWarning("Landing Pad AudioSource has not been assigned.");
+        }
     }
 
     void Update()
@@ -42,41 +54,52 @@ public class Movement : MonoBehaviour
         if (Input.GetKey(KeyCode.Space))
         {
             rb.AddRelativeForce(Vector3.up * thrustForce);
-            if (!thrustAudio.isPlaying)
+            if (thrustAudio != null && !thrustAudio.isPlaying)
             {
                 thrustAudio.Play();
             }
         }
         else
         {
-            thrustAudio.Stop();
+            if (thrustAudio != null)
+            {
+                thrustAudio.Stop();
+            }
         }
     }
 
     void ProcessRotate()
     {
         float rotationAmount = rotationSpeed * Time.deltaTime;
-
         if (Input.GetKey(KeyCode.A))
         {
-            rb.AddRelativeTorque(Vector3.forward * rotationAmount);
+            Debug.Log("Rotating Left");
+            transform.Rotate(0, -rotationAmount, 0);
         }
         else if (Input.GetKey(KeyCode.D))
         {
-            rb.AddRelativeTorque(-Vector3.forward * rotationAmount);
+            Debug.Log("Rotating Right");
+            transform.Rotate(0, rotationAmount, 0);
         }
+        Debug.Log("Current Rotation: " + transform.rotation.eulerAngles);
     }
 
     void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Wall"))
         {
-            collisionAudio.Play();
+            if (collisionAudio != null)
+            {
+                collisionAudio.Play();
+            }
             ReduceScoreAndRespawn();
         }
         else if (collision.gameObject.CompareTag("LandingPad"))
         {
-            landingPadAudio.Play();
+            if (landingPadAudio != null)
+            {
+                landingPadAudio.Play();
+            }
             ResetGame();
         }
     }
