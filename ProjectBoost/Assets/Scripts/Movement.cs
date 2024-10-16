@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using TMPro;
 
 public class Movement : MonoBehaviour
@@ -9,19 +8,13 @@ public class Movement : MonoBehaviour
     Rigidbody rb;
     [SerializeField] private float thrustForce = 10f;
     [SerializeField] private float rotationSpeed = 100f;
+
+    [SerializeField] private int score = 5;
     [SerializeField] private TMP_Text scoreText;
-    private int score;
+ 
 
     void Start()
     {
-        if (PlayerPrefs.HasKey("Score"))
-        {
-            score = PlayerPrefs.GetInt("Score");
-        }
-        else
-        {
-            score = 1;
-        }
         rb = GetComponent<Rigidbody>();
         UpdateScoreText();
     }
@@ -58,39 +51,27 @@ public class Movement : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Wall"))
         {
-            ReduceScoreAndRespawn();
+            score--;
+            UpdateScoreText();
+            if (score <= 0)
+            {
+                ReloadLevel(); // Reload level if score drops to 0
+            }
         }
         else if (collision.gameObject.CompareTag("LandingPad"))
         {
-            ResetGame();
-        }
-    }
-
-    void ReduceScoreAndRespawn()
-    {
-        if (score > 1)
-        {
-            score--;
-            PlayerPrefs.SetInt("Score", score);
+            score = 5; // Reset score when landing on the pad
             UpdateScoreText();
-            FindObjectOfType<FadeManager>().FadeOutAndReload();
         }
-        else
-        {
-            ResetGame();
-        }
-    }
-
-    void ResetGame()
-    {
-        score = 1;
-        PlayerPrefs.SetInt("Score", score);
-        UpdateScoreText();
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     void UpdateScoreText()
     {
         scoreText.text = "Score: " + score;
+    }
+
+    void ReloadLevel()
+    {
+        // Add scene reloading logic here
     }
 }
