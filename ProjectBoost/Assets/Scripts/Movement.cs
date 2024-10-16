@@ -11,7 +11,8 @@ public class Movement : MonoBehaviour
 
     [SerializeField] private int score = 5;
     [SerializeField] private TMP_Text scoreText;
- 
+    [SerializeField] private ParticleSystem thrusterParticles;
+
 
     void Start()
     {
@@ -30,6 +31,15 @@ public class Movement : MonoBehaviour
         if (Input.GetKey(KeyCode.Space))
         {
             rb.AddRelativeForce(Vector3.up * thrustForce);
+            
+            if (!thrusterParticles.isPlaying)
+            {
+                thrusterParticles.Play();
+            }
+        }
+        else
+        {
+            thrusterParticles.Stop();
         }
     }
 
